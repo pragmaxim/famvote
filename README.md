@@ -51,6 +51,7 @@ You can create polls like **"What’s for dinner?"** and allow only specific fam
 ```bash
 git clone https://github.com/pragmaxim/famvote.git
 cd famvote
+```
 
 1. Install dependencies:
 

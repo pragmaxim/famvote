@@ -142,11 +142,23 @@ const PollCard = ({ poll }) => {
       <h3 className="text-xl font-semibold mb-2">{poll.description}</h3>
 
       <div className="flex justify-between text-sm text-gray-600 mb-3">
-        <span>{poll.options.length} options</span>
         <span className={isExpired ? 'text-red-500' : 'text-green-500'}>
           {formatTimeRemaining()}
         </span>
       </div>
+
+      {poll.active && (
+          <div className="mb-3 text-sm">
+            {poll.options.map((option, index) => (
+                <div
+                    key={index}
+                    className="text-gray-700 text-sm font-semibold leading-tight mb-0.5"
+                >
+                  {option}
+                </div>
+            ))}
+          </div>
+      )}
 
       {/* Display brief results for past polls */}
       {!poll.active && (
@@ -155,7 +167,7 @@ const PollCard = ({ poll }) => {
             const voteCount = poll.results[index] || 0;
             const percentage = totalVotes > 0 ? Math.round((voteCount / totalVotes) * 100) : 0;
             return (
-              <div key={index} className="text-gray-700 text-xs leading-tight mb-0.5">
+              <div key={index} className="text-gray-700 text-sm font-semibold leading-tight mb-0.5">
                 {option}: {voteCount} ({percentage}%)
               </div>
             );

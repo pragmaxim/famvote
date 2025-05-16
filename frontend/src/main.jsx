@@ -1,16 +1,15 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
-import { http, createConfig, WagmiConfig } from 'wagmi';
+import { http, createConfig, WagmiConfig, WagmiProvider } from 'wagmi';
 import { base } from 'wagmi/chains'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { injected, metaMask, safe } from 'wagmi/connectors'
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import App from './App';
 import './index.css';
 import { localhostChain } from './chain';
 
-const queryClient = new QueryClient();
-
+const queryClient = new QueryClient()
 export const config = createConfig({
     chains: [localhostChain, base],
     connectors: [
@@ -19,7 +18,7 @@ export const config = createConfig({
         safe(),
     ],
     transports: {
-        [localhostChain.id]: http('http://127.0.0.1:8545'),
+        [localhostChain.id]: http(localhostChain.rpcUrls.default.http[0]),
         [base.id]: http(),
     },
 })
@@ -27,11 +26,13 @@ export const config = createConfig({
 ReactDOM.createRoot(document.getElementById('root')).render(
     <React.StrictMode>
         <WagmiConfig config={config}>
-            <QueryClientProvider client={queryClient}>
-                <BrowserRouter>
-                    <App />
-                </BrowserRouter>
-            </QueryClientProvider>
+            <WagmiProvider config={config}>
+                <QueryClientProvider client={queryClient}>
+                    <BrowserRouter>
+                        <App />
+                    </BrowserRouter>
+                </QueryClientProvider>
+            </WagmiProvider>
         </WagmiConfig>
     </React.StrictMode>
 );

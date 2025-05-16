@@ -10,7 +10,6 @@ const ConnectWallet = () => {
         <button
           key={connector.id}
           onClick={() => connect({ connector })}
-          disabled={!connector.ready || isLoading}
           className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded"
         >
           {connector.name}

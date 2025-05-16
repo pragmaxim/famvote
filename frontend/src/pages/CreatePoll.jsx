@@ -6,8 +6,8 @@ import { useContract } from '../hooks/useContract';
 const CreatePoll = () => {
   const navigate = useNavigate();
   const { address } = useAccount();
-  const { contract } = useContract();
-  
+  const { contract, publicClient } = useContract();
+
   const [description, setDescription] = useState('');
   const [options, setOptions] = useState(['', '']); // Start with 2 empty options
   const [voters, setVoters] = useState([address]); // Start with current user
@@ -58,32 +58,32 @@ const CreatePoll = () => {
   // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     // Validate inputs
     if (!description.trim()) {
       setError('Please enter a poll description');
       return;
     }
-    
+
     if (options.some(opt => !opt.trim())) {
       setError('All options must have a value');
       return;
     }
-    
+
     if (voters.some(voter => !voter || !voter.startsWith('0x'))) {
       setError('All voter addresses must be valid Ethereum addresses');
       return;
     }
-    
+
     if (duration <= 0) {
       setError('Duration must be greater than 0');
       return;
     }
-    
+
     try {
       setIsSubmitting(true);
       setError(null);
-      
+
       // Call the contract to create a new poll
       const tx = await contract.write.createPoll([
         description,
@@ -91,10 +91,13 @@ const CreatePoll = () => {
         voters,
         BigInt(duration)
       ]);
-      
+
       // Wait for transaction to be mined
-      await tx.wait();
-      
+      await publicClient.waitForTransactionReceipt({ hash: tx });
+
+      // Reset submitting state
+      setIsSubmitting(false);
+
       // Redirect to home page
       navigate('/');
     } catch (err) {
@@ -107,13 +110,13 @@ const CreatePoll = () => {
   return (
     <div className="create-poll">
       <h1 className="text-3xl font-bold mb-6">Create New Poll</h1>
-      
+
       {error && (
         <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
           {error}
         </div>
       )}
-      
+
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Poll Description */}
         <div>
@@ -129,7 +132,7 @@ const CreatePoll = () => {
             required
           />
         </div>
-        
+
         {/* Poll Options */}
         <div>
           <label className="block text-gray-700 font-semibold mb-2">
@@ -163,7 +166,7 @@ const CreatePoll = () => {
             + Add Option
           </button>
         </div>
-        
+
         {/* Voters */}
         <div>
           <label className="block text-gray-700 font-semibold mb-2">
@@ -197,7 +200,7 @@ const CreatePoll = () => {
             + Add Voter
           </button>
         </div>
-        
+
         {/* Duration */}
         <div>
           <label className="block text-gray-700 font-semibold mb-2">
@@ -220,7 +223,7 @@ const CreatePoll = () => {
             <option value={604800}>1 week</option>
           </select>
         </div>
-        
+
         {/* Submit Button */}
         <div>
           <button

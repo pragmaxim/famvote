@@ -13,18 +13,18 @@ const Home = () => {
   useEffect(() => {
     const fetchPolls = async () => {
       if (!contract) return;
-      
+
       try {
         setLoading(true);
-        
+
         // Get the total number of polls
         const pollCount = await contract.read.getPollCount();
-        
+
         // Fetch details for each poll
         const pollsData = [];
         for (let i = 0; i < pollCount; i++) {
           const pollData = await contract.read.getPoll([i]);
-          
+
           pollsData.push({
             id: i,
             description: pollData[0],
@@ -36,7 +36,7 @@ const Home = () => {
             isVoter: pollData[3].includes(address)
           });
         }
-        
+
         setPolls(pollsData);
         setLoading(false);
       } catch (err) {
@@ -111,25 +111,28 @@ const PollCard = ({ poll }) => {
   const currentTime = Math.floor(Date.now() / 1000);
   const isExpired = currentTime > poll.endTime;
   const timeRemaining = poll.endTime - currentTime;
-  
+
   // Format time remaining
   const formatTimeRemaining = () => {
     if (isExpired) return 'Expired';
-    
+
     const hours = Math.floor(timeRemaining / 3600);
     const minutes = Math.floor((timeRemaining % 3600) / 60);
-    
+
     if (hours > 24) {
       const days = Math.floor(hours / 24);
       return `${days} day${days !== 1 ? 's' : ''} remaining`;
     }
-    
+
     if (hours > 0) {
       return `${hours}h ${minutes}m remaining`;
     }
-    
+
     return `${minutes} minute${minutes !== 1 ? 's' : ''} remaining`;
   };
+
+  // Calculate total votes and percentages for past polls
+  const totalVotes = poll.results.reduce((sum, count) => sum + count, 0);
 
   return (
     <Link 
@@ -137,14 +140,29 @@ const PollCard = ({ poll }) => {
       className="block p-4 border rounded-lg hover:shadow-md transition-shadow"
     >
       <h3 className="text-xl font-semibold mb-2">{poll.description}</h3>
-      
+
       <div className="flex justify-between text-sm text-gray-600 mb-3">
         <span>{poll.options.length} options</span>
         <span className={isExpired ? 'text-red-500' : 'text-green-500'}>
           {formatTimeRemaining()}
         </span>
       </div>
-      
+
+      {/* Display brief results for past polls */}
+      {!poll.active && (
+        <div className="mb-3 text-sm">
+          {poll.options.map((option, index) => {
+            const voteCount = poll.results[index] || 0;
+            const percentage = totalVotes > 0 ? Math.round((voteCount / totalVotes) * 100) : 0;
+            return (
+              <div key={index} className="text-gray-700 text-xs leading-tight mb-0.5">
+                {option}: {voteCount} ({percentage}%)
+              </div>
+            );
+          })}
+        </div>
+      )}
+
       <div className="flex justify-between items-center">
         <span className="text-sm">
           {poll.isVoter ? 'You can vote' : 'View only'}

@@ -237,13 +237,36 @@ export function useContract() {
       client: publicClient,
     });
 
+    // Add write methods to the contract
+    if (walletClient) {
+      readContract.write = {};
+
+      // Add write functions from ABI
+      FamilyVoteABI.forEach(item => {
+        if (item.type === 'function' && item.stateMutability === 'nonpayable') {
+          readContract.write[item.name] = async (args) => {
+            // Make sure args is treated as the array of arguments
+            // and not as a single argument
+            return walletClient.writeContract({
+              address: CONTRACT_ADDRESS,
+              abi: FamilyVoteABI,
+              functionName: item.name,
+              args: args,
+              account: walletClient.account,
+            });
+          };
+        }
+      });
+    }
+
     setContract(readContract);
-  }, [publicClient]);
+  }, [publicClient, walletClient]);
 
   return {
-    contract,          // read-only
+    contract,          // read-only with write methods
     abi: FamilyVoteABI,
     address: CONTRACT_ADDRESS,
     walletClient,      // use this to send transactions
+    publicClient,      // use this to wait for transactions
   };
 }

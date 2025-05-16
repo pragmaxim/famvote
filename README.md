@@ -4,7 +4,7 @@ A lightweight decentralized voting app for family decisions, built with [Foundry
 
 You can create polls like **"What’s for dinner?"** and allow only specific family members to vote. Results are stored and displayed on-chain.
 
----
+![Family Vote Screenshot](./famvote.png)
 
 ## ✨ Features
 

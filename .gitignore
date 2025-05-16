@@ -1,2 +1,43 @@
-.idea
-out
+# IDE and Editor files
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Foundry specific
+out/
+cache/
+broadcast/
+
+# Compiler files
+forge-cache/
+forge-artifacts/
+
+# Debug logs
+*.log
+
+# Environment variables
+.env
+.env.*
+!.env.example
+
+# Build artifacts
+artifacts/
+build/
+dist/
+
+# Coverage
+coverage/
+coverage.json
+
+# Hardhat (if used alongside Foundry)
+artifacts-hardhat/
+cache-hardhat/
+
+# Misc
+.DS_Store
+*.pid
+*.seed
+*.pid.lock
+*.lock
